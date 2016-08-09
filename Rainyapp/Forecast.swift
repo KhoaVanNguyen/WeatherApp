@@ -43,10 +43,10 @@ init(weatherDict : Dictionary<String, AnyObject>)
 
     if let temp = weatherDict["temp"] as? Dictionary<String, AnyObject> {
         if let min = temp["min"] as? Double {
-            _minTemp = "\(min)"
+            _minTemp = "\(min - 273.15)"
         }
         if let max = temp["max"] as? Double {
-            _maxTemp = "\(max)"
+            _maxTemp = "\(max - 273.15)"
         }
     }
     if let weather = weatherDict["weather"] as? [Dictionary<String, AnyObject>]{

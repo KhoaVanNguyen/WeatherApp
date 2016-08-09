@@ -8,7 +8,8 @@
 
 import UIKit
 import Alamofire
-class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate {
+import CoreLocation
+class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
    
     @IBOutlet weak var dateLbl: UILabel!
     @IBOutlet weak var weatherImage: UIImageView!
@@ -18,10 +19,13 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
     @IBOutlet weak var locationLbl: UILabel!
     @IBOutlet weak var tableView: UITableView!
     
+    
     var forecasts = [Forecast]()
 
     var currentWeather : CurrentWeather!
     
+    var locationManager =  CLLocationManager()
+    var currentlocation : CLLocation!
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -30,15 +34,46 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
         tableView.separatorStyle = .singleLine
         tableView.allowsSelection = false
         
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startMonitoringSignificantLocationChanges()
         currentWeather = CurrentWeather()
-        currentWeather.downloadWeatherDetails {
-          // self.updateMainUI()
-            self.downloadForecastWeather {
-                self.updateMainUI()
-           }
+      
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        locationAuthStatus()
+    }
+    func locationAuthStatus(){
+        if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.authorizedWhenInUse{
+           currentlocation = locationManager.location
+            
+            Location.instance.latitude = currentlocation.coordinate.latitude
+            Location.instance.longitude = currentlocation.coordinate.longitude
+            
+           
+            print("||||||||||||||||||||||||||||||||||||||||||||||||||||||| ")
+            print(Location.instance.latitude, Location.instance.longitude)
+            print(CURRENT_WEATHER_URL)
+          
+            
+            
+            currentWeather.downloadWeatherDetails {
+                // self.updateMainUI()
+                self.downloadForecastWeather {
+                    self.updateMainUI()
+                }
+            }
+            
+            
+        }
+        else
+        {
+            locationManager.requestWhenInUseAuthorization()
+            locationAuthStatus()
         }
     }
-    
     func downloadForecastWeather(completed : DownloadComplete)
     {
         //let forecastURL = URL(string: FORECAST_WEATHER_URL)!
@@ -78,7 +113,7 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
             let forecastCell = forecasts[indexPath.row]
             
             cell.updateUI(forecastData: forecastCell)
-            print("||||||||||||||||||||||||||||||||")
+        
             return cell
             
         }
