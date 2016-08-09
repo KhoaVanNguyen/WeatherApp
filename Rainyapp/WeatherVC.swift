@@ -34,11 +34,8 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
         currentWeather.downloadWeatherDetails {
           // self.updateMainUI()
             self.downloadForecastWeather {
-                print("||||||||||||||||||||||||||||||||")
                 self.updateMainUI()
            }
-           
-            
         }
     }
     
@@ -54,9 +51,14 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
                     for obj in list {
                         let tempForecast = Forecast(weatherDict: obj)
                         self.forecasts.append(tempForecast)
-                        
-                        print (obj)
+                     /*   print(tempForecast.date)
+                        print(tempForecast.minTemp)
+                        print(tempForecast.maxTemp)
+                        print(tempForecast.weatherType)
+                        */
+                    
                     }
+                    self.tableView.reloadData()
                 }
             }
             
@@ -68,11 +70,22 @@ class WeatherVC : UIViewController , UITableViewDataSource, UITableViewDelegate 
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 6
+        return forecasts.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "weatherCell", for: indexPath)
-        return cell
+        if  let cell = tableView.dequeueReusableCell(withIdentifier: "weatherCell", for:  indexPath  ) as? WeatherCell{
+            
+            let forecastCell = forecasts[indexPath.row]
+            
+            cell.updateUI(forecastData: forecastCell)
+            print("||||||||||||||||||||||||||||||||")
+            return cell
+            
+        }
+        else
+        {
+            return UITableViewCell()
+        }
     }
     
     func updateMainUI()
